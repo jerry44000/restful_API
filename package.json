@@ -4,19 +4,21 @@
   "description": "tdd & express",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon index",
-    "test": "jest --watch",
+    "start": "cross-env NODE_ENV=development nodemon index",
+    "test": "cross-env NODE_ENV=test jest --watch",
     "lint": "eslint ."
   },
   "author": "Shai Badarna",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.0",
+    "config": "^3.3.9",
     "express": "^4.18.2",
     "sequelize": "^6.32.1",
     "sqlite3": "^5.1.6"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "eslint": "^8.43.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
@@ -52,4 +54,3 @@
     "endOfLine": "crlf"
   }
 }
-
