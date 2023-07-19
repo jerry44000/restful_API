@@ -1,38 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const UserService = require('./UserService.js');
-
-// Function (middleware) to check username. It return an error otherwise it goes next.
-const validateUserName = (req, res, next) => {
-  const user = req.body;
-  if (user.username === null) {
-    req.validationErrors = {
-      username: 'Usename can not be null',
-    };
-  }
-  next();
-};
-
-// Function to check email
-const validateEmail = (req, res, next) => {
-  const user = req.body;
-  if (user.email === null) {
-    req.validationErrors = {
-      ...req.validationErrors,
-      email: 'Email can not be null',
-    };
-  }
-  next();
-};
+const { check, validationResult } = require('express-validator');
 
 // After Validation
-router.post('/api/1.0/users', validateUserName, validateEmail, async (req, res) => {
-  if (req.validationErrors) {
-    const response = { validationErrors: { ...req.validationErrors } };
-    return res.status(400).send(response);
+router.post(
+  '/api/1.0/users',
+  check('username').notEmpty().withMessage('Username can not be null'),
+  check('email').notEmpty().withMessage('Email can not be null'),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const validationErrors = {};
+      errors.array().forEach((error) => (validationErrors[error.path] = error.msg));
+      return res.status(400).send({ validationErrors: validationErrors });
+    }
+    await UserService.save(req.body);
+    return res.send({ message: 'User created with success' });
   }
-  await UserService.save(req.body);
-  return res.send({ message: 'User created with success' });
-});
+);
 
 module.exports = router;
