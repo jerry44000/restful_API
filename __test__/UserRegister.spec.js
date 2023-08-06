@@ -96,17 +96,26 @@ describe('User Registration', () => {
 
   // Dynamic Tests with single repeating test
   it.each`
-    field         | expectedMessage
-    ${'username'} | ${'Username can not be null'}
-    ${'email'}    | ${'Email can not be null'}
-    ${'password'} | ${'Password can not be null'}
-  `('return $expectedMessage when $field is null', async ({ field, expectedMessage }) => {
+    field         | value   | expectedMessage
+    ${'username'} | ${null} | ${'Username can not be null'}
+    ${'username'} | ${'usr'} | ${'Must have min 4 and max 32 characters'}
+    ${'username'} | ${'a'.repeat(33)} | ${'Must have min 4 and max 32 characters'}
+    ${'email'}    | ${null} | ${'Email can not be null'}
+    ${'email'}    | ${'mail.com'} | ${'Email is not valid'}
+    ${'email'}    | ${'user.mail.com'} | ${'Email is not valid'}
+    ${'email'}    | ${'user@.mail'} | ${'Email is not valid'}
+    ${'password'} | ${null} | ${'Password can not be null'}
+    ${'password'} | ${'P4ssw'} | ${'Password must be at least 6 characters'}
+    ${'password'} | ${'alllowercase'} | ${'Password must have at least one uppercase and one lowercase and one number'}
+    ${'password'} | ${'1234567'} | ${'Password must have at least one uppercase and one lowercase and one number'}
+    ${'password'} | ${'ALLUPPERCASE'} | ${'Password must have at least one uppercase and one lowercase and one number'}
+  `('return $expectedMessage when $field is $value', async ({ field, expectedMessage, value }) => {
     const user = {
       username: 'user1',
       email: 'user1@mail.com',
       password: 'P4ssword',
     };
-    user[field] = null;
+    user[field] = value;
     const response = await postUser(user);
     const body = response.body;
     expect(body.validationErrors[field]).toBe(expectedMessage);
